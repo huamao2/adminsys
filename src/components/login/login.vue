@@ -25,28 +25,33 @@ export default {
     }
   },
   methods: {
-    handleLogin () {
-      this.$http.post('login', this.dataFormat)
-        .then((result) => {
-          // 解构赋值
-          const {
-            data,
-            meta: {
-              msg,
-              status
-            }
-          } = result.data
-          if (status === 200) {
-            // element弹窗
-            this.$message.success(msg)
-            this.$router.push({name: 'home'})
-            console.log(data)
-          } else {
-            this.$message.error(msg)
-          }
-        }).catch((err) => {
-          console.log(err)
-        })
+    async handleLogin () {
+      // 让异步操作的代码,看起来像同步代码
+      const result = await this.$http.post('login', this.dataFormat)
+      // 解构赋值
+      const { data, meta: { msg, status } } = result.data
+      if (status === 200) {
+        // element弹窗
+        this.$message.success(msg)
+        this.$router.push({name: 'home'})
+        console.log(data)
+      } else {
+        this.$message.error(msg)
+      }
+      // 常规写法
+      // this.$http.post('login', this.dataFormat)
+      //   .then((result) => {
+      //     // 解构赋值
+      //     const { data, meta: { msg, status } } = result.data
+      //     if (status === 200) {
+      //       // element弹窗
+      //       this.$message.success(msg)
+      //       this.$router.push({name: 'home'})
+      //       console.log(data)
+      //     } else {
+      //       this.$message.error(msg)
+      //     }
+      //   })
     }
   }
 }
