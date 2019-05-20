@@ -34,7 +34,8 @@ export default {
         // element弹窗
         this.$message.success(msg)
         this.$router.push({name: 'home'})
-        console.log(data)
+        // 保存token
+        localStorage.setItem('token', data.token)
       } else {
         this.$message.error(msg)
       }
