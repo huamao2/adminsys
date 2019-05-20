@@ -37,8 +37,10 @@ export default {
             }
           } = result.data
           if (status === 200) {
+            // element弹窗
             this.$message.success(msg)
-            console.log(data, msg)
+            this.$router.push({name: 'home'})
+            console.log(data)
           } else {
             this.$message.error(msg)
           }
