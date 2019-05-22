@@ -8,8 +8,8 @@
         <el-col :span="18" class="middle">
           <h2>后台管理系统</h2>
         </el-col>
-        <el-col :span="2" class="loginout">
-          <a>退出</a>
+        <el-col :span="2">
+          <a class="loginout" @click.prevent="handleLoginOut()" href="#">退出</a>
         </el-col>
       </el-row>
     </el-header>
@@ -96,6 +96,15 @@ export default {
   beforeCreate () {
     const token = localStorage.getItem('token')
     if (!token) {
+      this.$router.push({
+        name: 'login'
+      })
+    }
+  },
+  methods: {
+    handleLoginOut () {
+      localStorage.clear()
+      this.$message.success('退出登录')
       this.$router.push({name: 'login'})
     }
   }
