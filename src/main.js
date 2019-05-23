@@ -6,11 +6,15 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import HttpAxios from '@/plugins/http.js'
+import moment from 'moment'
 
 Vue.use(HttpAxios)
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 
+Vue.filter('dateformat', function (val) {
+  return moment(val).format('YYYY-MM-DD')
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
