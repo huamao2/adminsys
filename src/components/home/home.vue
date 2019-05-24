@@ -15,7 +15,7 @@
     </el-header>
     <el-container>
       <el-aside class="aside" width="200px">
-        <!-- unique-opened同时只保持一个菜单的打开 router开启路由模式,index相当于router-link的to值-->
+        <!-- unique-opened同时只保持一个菜单(取决于菜单的index值)的打开 router开启路由模式,index相当于router-link的to值-->
         <el-menu :unique-opened="true" :router="true">
           <!-- 1.用户管理 -->
           <el-submenu index="1">
@@ -38,7 +38,7 @@
               <span>角色列表</span>
               <i class="el-icon-arrow-right"></i>
             </el-menu-item>
-            <el-menu-item index="2-2">
+            <el-menu-item index="right">
               <span>权限列表</span>
               <i class="el-icon-arrow-right"></i>
             </el-menu-item>
