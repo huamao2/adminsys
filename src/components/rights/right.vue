@@ -1,5 +1,7 @@
 <template>
-  <div>权限列表</div>
+  <el-card>
+    <my-bread level1="权限管理" level2="权限列表"></my-bread>
+  </el-card>
 </template>
 
 <script>
