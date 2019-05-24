@@ -1,5 +1,7 @@
 <template>
-  <div>权限列表</div>
+  <div>
+    <my-bread level1="权限管理" level2="权限列表"></my-bread>
+  </div>
 </template>
 
 <script>
