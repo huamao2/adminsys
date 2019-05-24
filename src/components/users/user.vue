@@ -13,7 +13,7 @@
         <el-input placeholder="请输入内容" v-model="query" class="user-input" clearable @clear="getUserList()">
           <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
         </el-input>
-        <el-button type="success" @click="dialogFormVisibleAdd = true">添加用户</el-button>
+        <el-button type="success" @click="showAddDialogForm()">添加用户</el-button>
       </el-col>
     </el-row>
     <!-- 用户表格 -->
@@ -34,14 +34,17 @@
       </el-table-column>
       <el-table-column label="用户状态">
         <!-- 用户接收对象的标签可以是其它标签,但必须是根标签接收 -->
-        <el-switch slot-scope="scope" v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949">
+        <el-switch slot-scope="scope" @change="handleMgstateSwitch(scope.row)" v-model="scope.row.mg_state"
+          active-color="#13ce66" inactive-color="#ff4949">
         </el-switch>
       </el-table-column>
       <el-table-column prop="name" label="操作">
         <template slot-scope="scope">
-          <el-button size="mini" plain type="primary" icon="el-icon-edit" circle @click="dialogFormVisibleEdit = true"></el-button>
-          <el-button size="mini" plain type="danger" icon="el-icon-delete" circle @click="showDeleteMsgBox(scope.row.id)"></el-button>
-          <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
+          <el-button size="mini" plain type="primary" icon="el-icon-edit" circle @click="showEditDialogForm(scope.row)">
+          </el-button>
+          <el-button size="mini" plain type="danger" icon="el-icon-delete" circle
+            @click="showDeleteMsgBox(scope.row.id)"></el-button>
+          <el-button size="mini" plain type="success" icon="el-icon-check" circle @click="showRoleDialogForm(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -75,7 +78,7 @@
     <el-dialog title="编辑用户" :visible.sync="dialogFormVisibleEdit">
       <el-form :model="form">
         <el-form-item label="用户名" label-width="100px">
-          <el-input v-model="form.username" autocomplete="off"></el-input>
+          <el-input disabled v-model="form.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" label-width="100px">
           <el-input v-model="form.email" autocomplete="off"></el-input>
@@ -87,6 +90,25 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
         <el-button type="primary" @click="handleUserEdit()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 3.分配角色对话框 -->
+    <el-dialog title="分配角色" :visible.sync="dialogFormVisibleRole">
+      <el-form :model="form">
+        <el-form-item label="用户名" label-width="100px">
+          {{currentRoleName}}
+        </el-form-item>
+        <el-form-item label="角色" label-width="100px">
+          <!-- 如果select中model绑定数据的值和option的value一样,就会显示该option的label值 -->
+          <!-- 当currentRoleId为空时,就会显示placeholder字段 -->
+          <el-select v-model="currentRoleId" placeholder="请选择角色">
+            <el-option :label="item.roleName" :value="item.id" v-for="(item, id) in userRole" :key="id"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
+        <el-button type="primary" @click="handleRole()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -106,12 +128,51 @@ export default {
       userlist: [],
       dialogFormVisibleAdd: false,
       dialogFormVisibleEdit: false,
-      form: {}
+      dialogFormVisibleRole: false,
+      form: {},
+      currentRoleId: '',
+      currentRoleName: '',
+      currentUserId: '',
+      userRole: []
     }
   },
   methods: {
-    handleUserEdit () {
-      this.dialogFormVisibleEdit = false
+    async handleRole () {
+      await this.$http.put(`users/${this.currentUserId}/role`, {rid: this.currentRoleId})
+      this.dialogFormVisibleRole = false
+    },
+    async showRoleDialogForm (user) {
+      const resUser = await this.$http.get(`users/${user.id}`)
+      this.currentRoleId = resUser.data.data.rid
+      // 获取用户角色接口,如果该角色没有分配角色,则返回-1,为了让视图显示placeholder值,需强制为空
+      if (this.currentRoleId === -1) {
+        this.currentRoleId = ''
+      }
+
+      const resRole = await this.$http.get('roles')
+      this.userRole = resRole.data.data
+      this.currentUserId = user.id
+
+      this.currentRoleName = user.username
+      this.dialogFormVisibleRole = true
+    },
+    async handleMgstateSwitch (user) {
+      const result = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+      if (result.data.meta.status === 200) {
+        this.$message.success(result.data.meta.msg)
+      }
+    },
+    showEditDialogForm (user) {
+      this.dialogFormVisibleEdit = true
+      this.form = user
+    },
+    async handleUserEdit () {
+      const result = await this.$http.put(`users/${this.form.id}`, this.form)
+      if (result.data.meta.status === 200) {
+        this.dialogFormVisibleEdit = false
+        this.getUserList()
+        this.$message.success('编辑成功')
+      }
     },
     showDeleteMsgBox (userId) {
       this.$confirm('确定删除用户?', '提示', {
@@ -135,6 +196,10 @@ export default {
         })
       })
     },
+    showAddDialogForm () {
+      this.form = {}
+      this.dialogFormVisibleAdd = true
+    },
     async handleUserAdd () {
       //  username 用户名称 不能为空
       // password 用户密码 不能为空
@@ -142,7 +207,13 @@ export default {
       // mobile 手机号 可以为空
       this.dialogFormVisibleAdd = false
       const result = await this.$http.post('users', this.form)
-      const {data, meta: {msg, status}} = result.data
+      const {
+        data,
+        meta: {
+          msg,
+          status
+        }
+      } = result.data
       if (status === 201) {
         console.log(data)
         this.$message.success(msg)
@@ -151,13 +222,11 @@ export default {
       }
     },
     handleSizeChange (val) {
-      console.log(`每页 ${val} 条`)
       this.pagesize = val
       this.pagenum = 1
       this.getUserList()
     },
     handleCurrentChange (val) {
-      console.log(`当前页: ${val}`)
       this.pagenum = val
       this.getUserList()
     },
@@ -171,18 +240,17 @@ export default {
       // pagesize 每页显示条数 不能为空
       const res = await this.$http.get(
         `users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`)
-      console.log(res)
       const {
         data: {
           total,
           users
         },
         meta: {
-          msg,
+          // msg,
           status
         }
       } = res.data
-      console.log(total, users, status, msg)
+      // console.log(total, users, status, msg)
       if (status === 200) {
         this.userlist = users
         this.total = total
