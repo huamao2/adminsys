@@ -19,6 +19,7 @@ Vue.filter('dateformat', function (val) {
   return moment(val).format('YYYY-MM-DD')
 })
 /* eslint-disable no-new */
+Vue.component(myBread.name, myBread)
 new Vue({
   el: '#app',
   router,
