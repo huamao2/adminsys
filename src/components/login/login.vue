@@ -33,9 +33,9 @@ export default {
       if (status === 200) {
         // element弹窗
         this.$message.success(msg)
+        localStorage.setItem('token', data.token)
         this.$router.push({name: 'home'})
         // 保存token
-        localStorage.setItem('token', data.token)
       } else {
         this.$message.error(msg)
       }

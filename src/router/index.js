@@ -9,7 +9,7 @@ import '@/assets/css/reset.css'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [{
     name: 'login',
     // 一级组件path注意要以/开头
@@ -40,3 +40,19 @@ export default new Router({
   }
   ]
 })
+
+// router为创建的实例,next()为必须的,否则不能跳转
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
+    next()
+  } else {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push({name: 'login'})
+      return
+    }
+    next()
+  }
+})
+
+export default router
