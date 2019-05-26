@@ -33,7 +33,6 @@ export default {
     async getRightList () {
       const result = await this.$http.get('rights/list')
       this.rightlist = result.data.data
-      console.log(result)
     }
   }
 }

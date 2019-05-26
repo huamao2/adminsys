@@ -34,7 +34,7 @@
           active-color="#13ce66" inactive-color="#ff4949">
         </el-switch>
       </el-table-column>
-      <el-table-column prop="name" label="操作">
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button size="mini" plain type="primary" icon="el-icon-edit" circle @click="showEditDialogForm(scope.row)">
           </el-button>
